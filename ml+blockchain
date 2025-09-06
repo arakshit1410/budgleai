@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUDGLE - AI Blockchain Finance App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .phone-container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #fff;
+        }
+        
+        .status-left {
+            color: #000;
+        }
+        
+        .status-right {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            color: #000;
+        }
+        
+        /* Screen Management */
+        .screen {
+            display: none;
+            min-height: calc(100vh - 40px);
+            background: #fff;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        /* Onboarding Screen */
+        .onboarding {
+            text-align: center;
+            padding: 60px 40px;
+            background: #f8f9fa;
+        }
+        
+        .logo-container {
+            margin-bottom: 60px;
+        }
+        
+        .wallet-icon {
+            width: 200px;
+            height: 140px;
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            border-radius: 15px;
+            margin: 0 auto 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .wallet-money {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, #90EE90 0%, #32CD32 100%);
+            border-radius: 5px;
+            transform: rotate(-15deg);
+        }
+        
+        .wallet-money::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: -15px;
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(135deg, #90EE90 0%, #32CD32 100%);
+            border-radius: 5px;
+            transform: rotate(10deg);
+        }
+        
+        .budgle-logo {
+            background: #1a73e8;
+            color: white;
+            width: 80px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            margin: 20px auto;
+        }
+        
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #8B4513;
+            margin-bottom: 5px;
+        }
+        
+        .app-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 60px;
+        }
+        
+        .get-started-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 16px 50px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        .get-started-btn:hover {
+            background: #45a049;
+        }
+        
+        .powered-by {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        /* Welcome Screen */
+        .welcome {
+            padding: 40px 30px;
+        }
+        
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-text {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f9f9f9;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: white;
+        }
+        
+        .continue-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        /* Password Screen */
+        .password-screen {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .password-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        
+        .security-icon {
+            width: 80px;
+            height: 80px;
+            background: #e3f2fd;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 32px;
+        }
+        
+        .password-desc {
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+        
+        .password-input {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        /* Dashboard Screen */
+        .dashboard {
+            background: #f8f9fa;
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .app-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .profile-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #e9ecef;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .greeting {
+            padding: 20px;
+            background: white;
+        }
+        
+        .greeting h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .expense-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .expense-card {
+            text-align: center;
+        }
+        
+        .expense-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .expense-amount.income { color: #4CAF50; }
+        .expense-amount.expense { color: #f44336; }
+        
+        .expense-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .savings-section {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .savings-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+        
+        .update-btn {
+            background: none;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        /* Transactions Section */
+        .transactions-section {
+            background: white;
+            margin: 10px 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        
+        .transaction-details {
+            flex: 1;
+        }
+        
+        .transaction-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        
+        .transaction-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .transaction-amount.positive { color: #4CAF50; }
+        .transaction-amount.negative { color: #f44336; }
+        
+        /* Track Entry Screen */
+        .track-entry {
+            padding: 30px 20px;
+        }
+        
+        .entry-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .entry-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .entry-tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .amount-input {
+            font-size: 36px;
+            font-weight: 300;
+            border: none;
+            outline: none;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 30px;
+            color: #4CAF50;
+        }
+        
+        .category-section {
+            margin-bottom: 20px;
+        }
+        
+        .category-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .category-dropdown {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 16px;
+        }
+        
+        .date-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .note-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 30px 0;
+        }
+        
+        /* Analysis Screen */
+        .analysis {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .analysis-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .period-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .period-tab {
+            padding: 8px 20px;
+            border: 1px solid #4CAF50;
+            background: none;
+            border-radius: 20px;
+            color: #4CAF50;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .period-tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .chart-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-title {
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .expense-chart {
+            background: conic-gradient(#4CAF50 0% 60%, #FFC107 60% 80%, #FF5722 80% 100%);
+        }
+        
+        .income-chart {
+            background: conic-gradient(#4CAF50 0% 100%);
+        }
+        
+        /* Alerts Screen */
+        .alerts {
+            background: #f8f9fa;
+        }
+        
+        .alerts-header {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .alerts-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .alert-item {
+            background: white;
+            margin: 10px 20px;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .alert-item.warning {
+            border-left-color: #FF9800;
+        }
+        
+        .alert-item.danger {
+            border-left-color: #f44336;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .alert-type {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .alert-type.normal { color: #4CAF50; }
+        .alert-type.warning { color: #FF9800; }
+        .alert-type.danger { color: #f44336; }
+        
+        .alert-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .alert-message {
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        /* Goals Screen */
+        .goals {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .goals-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .goals-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .goals-subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .add-goal-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .goal-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .goal-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .goal-frequency {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .goal-amounts {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .goal-current {
+            font-size: 20px;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        
+        .goal-target {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .goal-progress {
+            background: #f0f0f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .goal-progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .goal-percentage {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+        
+        /* Profile Screen */
+        .profile {
+            padding: 30px 20px;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .profile-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            margin: 0 auto 15px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .profile-info {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .profile-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            color: #666;
+        }
+        
+        .profile-item-icon {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .edit-profile-btn {
+            border: 1px solid #4CAF50;
+            background: none;
+            color: #4CAF50;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .profile-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        
+        .profile-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .menu-item-icon {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .toggle-switch {
+            width: 50px;
+            height: 30px;
+            background: #4CAF50;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+            transition: transform 0.3s;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #666;
+            padding: 15px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .delete-btn {
+            background: #f44336;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 375px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            padding: 10px 0 25px 0;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: #999;
+        }
+        
+        .nav-item.active {
+            color: #4CAF50;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        /* AI Chatbot */
+        .chatbot {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            z-index: 1000;
+            font-size: 24px;
+        }
+        
+        .chat-window {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            width: 320px;
+            height: 400px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .chat-input-container {
+            padding: 16px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e9ecef;
+            border-radius: 24px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .message.bot {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.user {
+            background: #4CAF50;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        /* Responsive */
+        @media (max-width: 375px) {
+            .phone-container {
+                width: 100vw;
+            }
+            
+            .bottom-nav {
+                width: 100vw;
+            }
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: white;
+            border-radius: 10px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* AI Alert Popup */
+        .ai-alert {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 335px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 2000;
+            display: none;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .ai-alert.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .ai-alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .ai-alert-icon {
+            font-size: 18px;
+        }
+        
+        .ai-alert-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .ai-alert-message {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .blockchain-hash {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">9:41</div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>📳</span>
+                <span>🔋</span>
+            </div>
+        </div>
+        
+        <!-- Onboarding Screen -->
+        <div class="screen active" id="onboarding">
+            <div class="onboarding">
+                <div class="logo-container">
+                    <div class="wallet-icon">
+                        <div class="wallet-money"></div>
+                        <div class="budgle-logo">💳</div>
+                    </div>
+                    <div class="app-title">BUDGLE</div>
+                    <div class="app-subtitle">BUDGET FOR PEOPLE</div>
+                </div>
+                
+                <button class="get-started-btn" onclick="showScreen('welcome')">Get Started</button>
+                
+                <div class="powered-by">
+                    <span>🔗</span>
+                    <span>Powered by Blockchain & AI</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Welcome Screen -->
+        <div class="screen" id="welcome">
+            <div class="welcome">
+                <h2 class="welcome-title">Hi, welcome!</h2>
+                <p class="welcome-text">Let's set up your Budgle account. We'll start with some basic details.</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="fullName" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="email" placeholder="you@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Mobile Number (for UPI)</label>
+                    <input type="tel" class="form-input" id="mobile" placeholder="+91 12345 67890">
+                </div>
+                
+                <button class="continue-btn" onclick="showScreen('password')">Continue</button>
+            </div>
+        </div>
+        
+        <!-- Password Screen -->
+        <div class="screen" id="password">
+            <div class="password-screen">
+                <h2 class="password-title">Set Your Password</h2>
+                <div class="security-icon">🔐</div>
+                <p class="password-desc">Create a strong password for your Budgle account. It must be at least 8 characters long, including letters, numbers, and symbols.</p>
+                
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <div class="password-input">
+                        <input type="password" class="form-input" id="newPassword" placeholder="Enter your new password">
+                        <button class="toggle-password" onclick="togglePasswordVisibility('newPassword')">👁️</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="password-input">
+                        <input type="password" class="form-input" id="confirmPassword" placeholder="Re-enter your password">
+                        <button class="toggle-password" onclick="togglePasswordVisibility('confirmPassword')">👁️</button>
+                    </div>
+                </div>
+                
+                <button class="continue-btn" onclick="createAccount()">Create Account</button>
+            </div>
+        </div>
+        
+        <!-- Dashboard Screen -->
+        <div class="screen" id="dashboard">
+            <div class="dashboard">
+                <div class="dashboard-header">
+                    <div class="app-name">BUDGLE</div>
+                    <button class="profile-btn" onclick="showScreen('profile')">👤</button>
+                </div>
+                
+                <div class="greeting">
+                    <h2>Hello, Jane Doe!</h2>
+                    
+                    <div class="expense-summary">
+                        <div class="expense-card">
+                            <div class="expense-amount expense">₹18,500</div>
+                            <div class="expense-label">Total Expenses</div>
+                        </div>
+                        <div class="expense-card">
+                            <div class="expense-amount income">₹45,000</div>
+                            <div class="expense-label">Total Income</div>
+                        </div>
+                    </div>
+                    
+                    <div class="savings-section">
+                        <div class="savings-amount">₹26,500</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">Your Savings</div>
+                        <button class="update-btn" onclick="showAIAlert('savings', 'AI Insight', 'Great job! You saved 15% more than last month. Your coffee expenses decreased by ₹800.')">🤖 Update Savings</button>
+                    </div>
+                </div>
+                
+                <div class="transactions-section">
+                    <div class="section-header">Recent Transactions</div>
+                    <div id="transactionsList">
+                        <div class="transaction-item">
+                            <div class="transaction-icon" style="background: #e8f5e8; color: #4CAF50;">🛒</div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Groceries at FreshMart</div>
+                                <div class="transaction-subtitle">Food & Dining • May 15, 2024</div>
+                            </div>
+                            <div class="transaction-amount negative">₹1,350</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon" style="background: #fff3e0; color: #FF9800;">👕</div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">New Shirt at FashionHub</div>
+                                <div class="transaction-subtitle">Shopping • May 14, 2024</div>
+                            </div>
+                            <div class="transaction-amount negative">₹900</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon" style="background: #e3f2fd; color: #2196F3;">💼</div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Project Payment - Acme Corp</div>
+                                <div class="transaction-subtitle">Income • May 13, 2024</div>
+                            </div>
+                            <div class="transaction-amount positive">₹15,000</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon" style="background: #fce4ec; color: #E91E63;">🚗</div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Cab ride to Airport</div>
+                                <div class="transaction-subtitle">Transportation • May 12, 2024</div>
+                            </div>
+                            <div class="transaction-amount negative">₹450</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-icon" style="background: #f3e5f5; color: #9C27B0;">⚡</div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Electricity Bill</div>
+                                <div class="transaction-subtitle">Utilities • May 11, 2024</div>
+                            </div>
+                            <div class="transaction-amount negative">₹1,200</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Track Entry Screen -->
+        <div class="screen" id="trackEntry">
+            <div class="track-entry">
+                <div class="entry-tabs">
+                    <button class="entry-tab active" onclick="switchEntryTab('expense')">Expense</button>
+                    <button class="entry-tab" onclick="switchEntryTab('income')">Income</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <input type="number" class="amount-input" id="entryAmount" placeholder="0.00" min="0" step="0.01">
+                </div>
+                
+                <div class="form-group category-section">
+                    <label class="category-label">Category</label>
+                    <select class="category-dropdown" id="entryCategory">
+                        <option value="">Select Category</option>
+                        <option value="food">🍔 Food & Dining</option>
+                        <option value="transport">🚗 Transportation</option>
+                        <option value="shopping">🛒 Shopping</option>
+                        <option value="entertainment">🎬 Entertainment</option>
+                        <option value="health">🏥 Health</option>
+                        <option value="utilities">⚡ Utilities</option>
+                        <option value="education">📚 Education</option>
+                        <option value="other">📝 Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="date-input" id="entryDate">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Note</label>
+                    <textarea class="note-input" id="entryNote" placeholder="Add a note (optional)"></textarea>
+                </div>
+                
+                <button class="save-btn" onclick="saveTransaction()">Save Transaction</button>
+                
+                <div class="transactions-section">
+                    <div class="section-header">Recent Transactions</div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background: #e8f5e8; color: #4CAF50;">💰</div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Manual Cash</div>
+                            <div class="transaction-subtitle">Income • Today</div>
+                        </div>
+                        <div class="transaction-amount positive">₹2,000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Screen -->
+        <div class="screen" id="analysis">
+            <div class="analysis">
+                <div class="analysis-header">
+                    <h2>Analysis</h2>
+                    <div class="period-tabs">
+                        <button class="period-tab" onclick="switchPeriod('weekly')">Weekly</button>
+                        <button class="period-tab active" onclick="switchPeriod('monthly')">Monthly</button>
+                        <button class="period-tab" onclick="switchPeriod('yearly')">Yearly</button>
+                    </div>
+                </div>
+                
+                <div class="chart-section">
+                    <div class="chart-title">Expense Breakdown</div>
+                    <div class="pie-chart expense-chart"></div>
+                </div>
+                
+                <div class="chart-section">
+                    <div class="chart-title">Income Breakdown</div>
+                    <div class="pie-chart income-chart"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alerts Screen -->
+        <div class="screen" id="alerts">
+            <div class="alerts">
+                <div class="alerts-header">
+                    <div class="alerts-title">Alerts</div>
+                </div>
+                
+                <div class="alert-item">
+                    <div class="alert-header">
+                        <div class="alert-type normal">Normal</div>
+                        <div class="alert-time">4 hours ago</div>
+                    </div>
+                    <div class="alert-message">Electricity Bill Due<br>Your Electricity bill of ₹1,200 is due on May 15. Tap here to avoid late fees.</div>
+                </div>
+                
+                <div class="alert-item">
+                    <div class="alert-header">
+                        <div class="alert-type normal">Normal</div>
+                        <div class="alert-time">Yesterday</div>
+                    </div>
+                    <div class="alert-message">Savings Goal Update<br>Great work! You and 50% towards your Europe trip goal. Keep saving!</div>
+                </div>
+                
+                <div class="alert-item warning">
+                    <div class="alert-header">
+                        <div class="alert-type warning">Overspending</div>
+                        <div class="alert-time">Yesterday</div>
+                    </div>
+                    <div class="alert-message">Shopping Alert<br>Your spending on shopping has exceeded by 20% this week. Review your spending habits.</div>
+                </div>
+                
+                <div class="alert-item danger">
+                    <div class="alert-header">
+                        <div class="alert-type danger">Suspicious</div>
+                        <div class="alert-time">2 days ago</div>
+                    </div>
+                    <div class="alert-message">🚨 Fraud Detected<br>Suspicious SMS blocked: "Congratulations! You won ₹50,000..." - AI prevented potential scam</div>
+                </div>
+                
+                <div class="alert-item">
+                    <div class="alert-header">
+                        <div class="alert-type normal">Normal</div>
+                        <div class="alert-time">3 days ago</div>
+                    </div>
+                    <div class="alert-message">Rent Due Soon<br>Your monthly rent of ₹15,000 is due on May 1. Set a reminder now.</div>
+                </div>
+                
+                <div class="alert-item">
+                    <div class="alert-header">
+                        <div class="alert-type normal">Normal</div>
+                        <div class="alert-time">5 days ago</div>
+                    </div>
+                    <div class="alert-message">New Feature Alert<br>🎉 Karma Rewards now available! Earn tokens for smart spending and redeem exclusive offers.</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Goals Screen -->
+        <div class="screen" id="goals">
+            <div class="goals">
+                <div class="goals-header">
+                    <div class="goals-title">Goals & Planning</div>
+                    <div class="goals-subtitle">Start Your Savings Journey!</div>
+                    <button class="add-goal-btn" onclick="showAIAlert('goal', 'AI Goal Planner', 'Let me help create a smart goal! I can analyze your spending patterns and suggest realistic savings amounts.')">+ Add New Goal</button>
+                </div>
+                
+                <div class="goal-item">
+                    <div class="goal-header">
+                        <div>
+                            <div class="goal-name">Dream Vacation Fund</div>
+                            <div class="goal-frequency">Monthly</div>
+                        </div>
+                    </div>
+                    <div class="goal-amounts">
+                        <div class="goal-current">₹35,000</div>
+                        <div class="goal-target">Target ₹1,50,000</div>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="goal-progress-fill" style="width: 23%"></div>
+                    </div>
+                    <div class="goal-percentage">23% Achieved</div>
+                </div>
+                
+                <div class="goal-item">
+                    <div class="goal-header">
+                        <div>
+                            <div class="goal-name">New Gadget</div>
+                            <div class="goal-frequency">Weekly</div>
+                        </div>
+                    </div>
+                    <div class="goal-amounts">
+                        <div class="goal-current">₹40,000</div>
+                        <div class="goal-target">Target ₹50,000</div>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="goal-progress-fill" style="width: 80%"></div>
+                    </div>
+                    <div class="goal-percentage">80% Achieved</div>
+                </div>
+                
+                <div class="goal-item">
+                    <div class="goal-header">
+                        <div>
+                            <div class="goal-name">Emergency Savings</div>
+                            <div class="goal-frequency">Yearly</div>
+                        </div>
+                    </div>
+                    <div class="goal-amounts">
+                        <div class="goal-current">₹2,00,000</div>
+                        <div class="goal-target">Target ₹2,50,000</div>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="goal-progress-fill" style="width: 80%"></div>
+                    </div>
+                    <div class="goal-percentage">80% Achieved</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Screen -->
+        <div class="screen" id="profile">
+            <div class="profile">
+                <div class="profile-header">
+                    <div class="profile-title">Profile</div>
+                    <div class="profile-avatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23e9ecef'/%3E%3Ccircle cx='40' cy='32' r='12' fill='%23666'/%3E%3Cpath d='M20 65 Q20 50 40 50 Q60 50 60 65' fill='%23666'/%3E%3C/svg%3E" alt="Profile">
+                    </div>
+                    <div class="profile-name">Aarav Sharma</div>
+                </div>
+                
+                <div class="profile-info">
+                    <div class="profile-item">
+                        <span class="profile-item-icon">📧</span>
+                        <span>aarav.sharma@example.com</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-item-icon">📱</span>
+                        <span>+91 98765 43210</span>
+                    </div>
+                </div>
+                
+                <button class="edit-profile-btn">Edit Profile</button>
+                
+                <div class="profile-section">
+                    <div class="section-title">Help & Support</div>
+                    <div class="profile-menu-item">
+                        <div class="menu-item-left">
+                            <span class="menu-item-icon">❓</span>
+                            <span>FAQs</span>
+                        </div>
+                        <span>›</span>
+                    </div>
+                    <div class="profile-menu-item">
+                        <div class="menu-item-left">
+                            <span class="menu-item-icon">💬</span>
+                            <span>Contact Support</span>
+                        </div>
+                        <span>›</span>
+                    </div>
+                    <div class="profile-menu-item">
+                        <div class="menu-item-left">
+                            <span class="menu-item-icon">📚</span>
+                            <span>Tutorials</span>
+                        </div>
+                        <span>›</span>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <div class="section-title">Settings</div>
+                    <div class="profile-menu-item">
+                        <div class="menu-item-left">
+                            <span class="menu-item-icon">🔔</span>
+                            <span>Notification Preferences</span>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+                </div>
+                
+                <button class="logout-btn">
+                    <span class="menu-item-icon">🚪</span>
+                    <span>Logout</span>
+                </button>
+                
+                <button class="delete-btn">🗑️ Delete Account</button>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('dashboard')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </button>
+            <button class="nav-item" onclick="showScreen('trackEntry')">
+                <div class="nav-icon">➕</div>
+                <div class="nav-label">Add</div>
+            </button>
+            <button class="nav-item" onclick="showScreen('analysis')">
+                <div class="nav-icon">📊</div>
+                <div class="nav-label">Analysis</div>
+            </button>
+            <button class="nav-item" onclick="showScreen('alerts')">
+                <div class="nav-icon">🔔</div>
+                <div class="nav-label">Alerts</div>
+                <div class="notification-badge">3</div>
+            </button>
+            <button class="nav-item" onclick="showScreen('goals')">
+                <div class="nav-icon">🎯</div>
+                <div class="nav-label">Goals</div>
+            </button>
+        </div>
+        
+        <!-- AI Chatbot -->
+        <div class="chatbot" onclick="toggleChat()">🤖</div>
+        
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-title">🤖 AI Finance Assistant</div>
+                <button class="chat-close" onclick="toggleChat()">✕</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    Hi! I'm your AI-powered finance assistant with ML categorization and blockchain security. I can help with:
+                    
+                    🧠 Smart expense categorization
+                    ⛓️ Blockchain transaction verification  
+                    🚨 Fraud detection & alerts
+                    🎯 Goal optimization strategies
+                    💰 Karma rewards management
+                    
+                    What would you like to explore?
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your finances..." onkeypress="handleChatEnter(event)">
+            </div>
+        </div>
+        
+        <!-- AI Alert System -->
+        <div class="ai-alert" id="aiAlert">
+            <div class="ai-alert-header">
+                <div class="ai-alert-icon">🤖</div>
+                <div class="ai-alert-title" id="aiAlertTitle">AI Alert</div>
+            </div>
+            <div class="ai-alert-message" id="aiAlertMessage">This is an AI-generated insight</div>
+            <div class="blockchain-hash" id="aiAlertHash"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Global App State
+        let appData = {
+            user: {
+                name: 'Jane Doe',
+                email: 'jane@example.com',
+                mobile: '+91 98765 43210',
+                balance: 26500,
+                totalIncome: 45000,
+                totalExpenses: 18500,
+                karmaTokens: 1250
+            },
+            transactions: [
+                {id: 1, title: 'Groceries at FreshMart', amount: -1350, category: 'food', date: '2024-05-15', type: 'expense'},
+                {id: 2, title: 'New Shirt at FashionHub', amount: -900, category: 'shopping', date: '2024-05-14', type: 'expense'},
+                {id: 3, title: 'Project Payment - Acme Corp', amount: 15000, category: 'income', date: '2024-05-13', type: 'income'},
+                {id: 4, title: 'Cab ride to Airport', amount: -450, category: 'transport', date: '2024-05-12', type: 'expense'},
+                {id: 5, title: 'Electricity Bill', amount: -1200, category: 'utilities', date: '2024-05-11', type: 'expense'}
+            ],
+            goals: [
+                {id: 1, name: 'Dream Vacation Fund', current: 35000, target: 150000, frequency: 'Monthly'},
+                {id: 2, name: 'New Gadget', current: 40000, target: 50000, frequency: 'Weekly'},
+                {id: 3, name: 'Emergency Savings', current: 200000, target: 250000, frequency: 'Yearly'}
+            ],
+            currentScreen: 'onboarding',
+            entryType: 'expense'
+        };
+        
+        // Blockchain Simulation
+        function generateBlockchainHash(data) {
+            return CryptoJS.SHA256(data + Date.now().toString()).toString().substring(0, 16);
+        }
+        
+        function verifyTransaction(transaction) {
+            const hash = generateBlockchainHash(JSON.stringify(transaction));
+            return `0x${hash}`;
+        }
+        
+        // AI Categorization
+        function aiCategorizeTransaction(description, amount) {
+            const desc = description.toLowerCase();
+            const categories = {
+                food: ['food', 'restaurant', 'zomato', 'swiggy', 'grocery', 'cafe', 'dining'],
+                transport: ['uber', 'ola', 'taxi', 'metro', 'bus', 'fuel', 'cab'],
+                shopping: ['amazon', 'flipkart', 'mall', 'shop', 'store', 'purchase'],
+                entertainment: ['netflix', 'movie', 'game', 'music', 'show', 'concert'],
+                health: ['hospital', 'doctor', 'medicine', 'gym', 'pharmacy'],
+                utilities: ['electricity', 'water', 'gas', 'internet', 'phone', 'bill'],
+                education: ['school', 'college', 'book', 'course', 'tuition'],
+                other: []
+            };
+            
+            for (const [category, keywords] of Object.entries(categories)) {
+                if (keywords.some(keyword => desc.includes(keyword))) {
+                    return {
+                        category: category,
+                        confidence: Math.random() * 0.3 + 0.7, // 70-100% confidence
+                        reasoning: `AI detected keywords: ${keywords.filter(k => desc.includes(k)).join(', ')}`
+                    };
+                }
+            }
+            
+            return {
+                category: 'other',
+                confidence: 0.5,
+                reasoning: 'No specific keywords detected, categorized as other'
+            };
+        }
+        
+        // Fraud Detection
+        function detectFraud(description, amount) {
+            const fraudKeywords = ['congratulations', 'won', 'lottery', 'prize', 'urgent', 'click here', 'verify account'];
+            const desc = description.toLowerCase();
+            
+            const fraudScore = fraudKeywords.reduce((score, keyword) => {
+                return desc.includes(keyword) ? score + 0.2 : score;
+            }, 0);
+            
+            if (fraudScore > 0.3) {
+                return {
+                    isFraud: true,
+                    confidence: Math.min(fraudScore, 1),
+                    reason: 'Suspicious keywords detected'
+                };
+            }
+            
+            if (amount > 50000) {
+                return {
+                    isFraud: true,
+                    confidence: 0.8,
+                    reason: 'Unusually large transaction amount'
+                };
+            }
+            
+            return {isFraud: false, confidence: 0.1, reason: 'Transaction appears normal'};
+        }
+        
+        // Screen Management
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            document.getElementById(screenId).classList.add('active');
+            appData.currentScreen = screenId;
+            
+            // Update navigation
+            updateNavigation(screenId);
+            
+            // Set current date for track entry
+            if (screenId === 'trackEntry') {
+                document.getElementById('entryDate').valueAsDate = new Date();
+            }
+        }
+        
+        function updateNavigation(activeScreen) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navMapping = {
+                'dashboard': 0,
+                'trackEntry': 1,
+                'analysis': 2,
+                'alerts': 3,
+                'goals': 4
+            };
+            
+            if (navMapping[activeScreen] !== undefined) {
+                document.querySelectorAll('.nav-item')[navMapping[activeScreen]].classList.add('active');
+            }
+        }
+        
+        // Password Visibility Toggle
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+        
+        // Account Creation
+        function createAccount() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const mobile = document.getElementById('mobile').value;
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!fullName || !email || !mobile || !password) {
+                showAIAlert('warning', 'Missing Information', 'Please fill in all required fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAIAlert('error', 'Password Mismatch', 'Passwords do not match. Please try again.');
+                return;
+            }
+            
+            // Update user data
+            appData.user.name = fullName;
+            appData.user.email = email;
+            appData.user.mobile = mobile;
+            
+            // Generate blockchain identity
+            const userHash = generateBlockchainHash(JSON.stringify({fullName, email, mobile}));
+            
+            showAIAlert('success', 'Account Created Successfully!', `Welcome to BUDGLE! Your blockchain identity: ${userHash}. AI assistant is now active.`);
+            
+            setTimeout(() => {
+                showScreen('dashboard');
+                startAIDemo();
+            }, 2000);
+        }
+        
+        // Entry Tab Switching
+        function switchEntryTab(type) {
+            appData.entryType = type;
+            
+            document.querySelectorAll('.entry-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            
+            // Update placeholder and styling
+            const amountInput = document.getElementById('entryAmount');
+            if (type === 'expense') {
+                amountInput.style.color = '#f44336';
+                amountInput.placeholder = '0.00';
+            } else {
+                amountInput.style.color = '#4CAF50';
+                amountInput.placeholder = '0.00';
+            }
+        }
+        
+        // Save Transaction
+        function saveTransaction() {
+            const amount = parseFloat(document.getElementById('entryAmount').value);
+            const category = document.getElementById('entryCategory').value;
+            const date = document.getElementById('entryDate').value;
+            const note = document.getElementById('entryNote').value;
+            
+            if (!amount || !category || !date) {
+                showAIAlert('warning', 'Missing Information', 'Please fill in amount, category, and date');
+                return;
+            }
+            
+            const transactionAmount = appData.entryType === 'expense' ? -amount : amount;
+            
+            // AI Categorization
+            const aiResult = aiCategorizeTransaction(note || category, amount);
+            
+            // Fraud Detection
+            const fraudCheck = detectFraud(note || category, amount);
+            
+            if (fraudCheck.isFraud) {
+                showAIAlert('danger', '🚨 Fraud Alert', `Suspicious transaction detected: ${fraudCheck.reason}. Transaction blocked for security.`);
+                return;
+            }
+            
+            // Create transaction
+            const transaction = {
+                id: Date.now(),
+                title: note || `${category.charAt(0).toUpperCase() + category.slice(1)} Transaction`,
+                amount: transactionAmount,
+                category: aiResult.category,
+                date: date,
+                type: appData.entryType,
+                hash: verifyTransaction({amount: transactionAmount, category, date, note})
+            };
+            
+            // Add to transactions
+            appData.transactions.unshift(transaction);
+            
+            // Update balances
+            if (appData.entryType === 'expense') {
+                appData.user.totalExpenses += amount;
+                appData.user.balance -= amount;
+            } else {
+                appData.user.totalIncome += amount;
+                appData.user.balance += amount;
+            }
+            
+            // Award karma tokens
+            const tokensEarned = Math.floor(amount / 100);
+            appData.user.karmaTokens += tokensEarned;
+            
+            // Update UI
+            updateDashboard();
+            
+            // Clear form
+            document.getElementById('entryAmount').value = '';
+            document.getElementById('entryCategory').value = '';
+            document.getElementById('entryNote').value = '';
+            
+            showAIAlert('success', 'Transaction Saved', `${appData.entryType === 'expense' ? 'Expense' : 'Income'} of ₹${amount} added and verified on blockchain. AI confidence: ${Math.round(aiResult.confidence * 100)}%. Earned ${tokensEarned} karma tokens!`);
+            
+            setTimeout(() => {
+                showScreen('dashboard');
+            }, 2000);
+        }
+        
+        // Update Dashboard
+        function updateDashboard() {
+            document.querySelector('.expense-amount.expense').textContent = `₹${appData.user.totalExpenses.toLocaleString()}`;
+            document.querySelector('.expense-amount.income').textContent = `₹${appData.user.totalIncome.toLocaleString()}`;
+            document.querySelector('.savings-amount').textContent = `₹${appData.user.balance.toLocaleString()}`;
+            
+            // Update transactions list
+            const transactionsList = document.getElementById('transactionsList');
+            if (transactionsList) {
+                transactionsList.innerHTML = appData.transactions.slice(0, 5).map(transaction => {
+                    const categoryIcons = {
+                        food: {icon: '🛒', bg: '#e8f5e8', color: '#4CAF50'},
+                        transport: {icon: '🚗', bg: '#fce4ec', color: '#E91E63'},
+                        shopping: {icon: '👕', bg: '#fff3e0', color: '#FF9800'},
+                        income: {icon: '💼', bg: '#e3f2fd', color: '#2196F3'},
+                        utilities: {icon: '⚡', bg: '#f3e5f5', color: '#9C27B0'},
+                        other: {icon: '💰', bg: '#f5f5f5', color: '#757575'}
+                    };
+                    
+                    const categoryStyle = categoryIcons[transaction.category] || categoryIcons.other;
+                    
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-icon" style="background: ${categoryStyle.bg}; color: ${categoryStyle.color};">${categoryStyle.icon}</div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">${transaction.title}</div>
+                                <div class="transaction-subtitle">${transaction.category} • ${new Date(transaction.date).toLocaleDateString()}</div>
+                            </div>
+                            <div class="transaction-amount ${transaction.amount > 0 ? 'positive' : 'negative'}">₹${Math.abs(transaction.amount)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        // Period Switching for Analysis
+        function switchPeriod(period) {
+            document.querySelectorAll('.period-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            
+            showAIAlert('info', 'Analysis Updated', `Switched to ${period} analysis. AI is processing your spending patterns for ${period} insights.`);
+        }
+        
+        // AI Alert System
+        function showAIAlert(type, title, message) {
+            const alert = document.getElementById('aiAlert');
+            const alertTitle = document.getElementById('aiAlertTitle');
+            const alertMessage = document.getElementById('aiAlertMessage');
+            const alertHash = document.getElementById('aiAlertHash');
+            
+            const alertTypes = {
+                success: {class: 'success', color: '#4CAF50'},
+                warning: {class: 'warning', color: '#FF9800'},
+                danger: {class: 'danger', color: '#f44336'},
+                error: {class: 'danger', color: '#f44336'},
+                info: {class: 'info', color: '#2196F3'}
+            };
+            
+            const alertType = alertTypes[type] || alertTypes.info;
+            
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+            alertHash.textContent = `Blockchain Hash: ${generateBlockchainHash(title + message)}`;
+            
+            alert.style.borderLeftColor = alertType.color;
+            alert.classList.add('show');
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Chat System
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            const isVisible = chatWindow.style.display === 'flex';
+            
+            chatWindow.style.display = isVisible ? 'none' : 'flex';
+            
+            if (!isVisible) {
+                document.getElementById('chatInput').focus();
+            }
+        }
+        
+        function handleChatEnter(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+        
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Simulate AI thinking
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                addChatMessage(response, 'bot');
+            }, 1000);
+        }
+        
+        function addChatMessage(message, type) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function generateAIResponse(message) {
+            const msg = message.toLowerCase();
+            
+            const responses = {
+                balance: `Your current balance is ₹${appData.user.balance.toLocaleString()}. Total income: ₹${appData.user.totalIncome.toLocaleString()}, Total expenses: ₹${appData.user.totalExpenses.toLocaleString()}. You've saved ${Math.round((appData.user.balance/appData.user.totalIncome)*100)}% of your income! 💪`,
+                
+                expense: `Your total expenses are ₹${appData.user.totalExpenses.toLocaleString()}. Top spending categories based on AI analysis: Food & Dining (35%), Transportation (20%), Shopping (25%), Utilities (15%). AI suggests reducing food delivery by 2 times/week to save ₹2,400/month.`,
+                
+                goal: `You have ${appData.goals.length} active savings goals with an average progress of ${Math.round(appData.goals.reduce((sum, goal) => sum + (goal.current/goal.target)*100, 0) / appData.goals.length)}%. Your closest goal is "${appData.goals.find(g => (g.current/g.target) === Math.max(...appData.goals.map(goal => goal.current/goal.target)))?.name}" at ${Math.round((appData.goals.find(g => (g.current/g.target) === Math.max(...appData.goals.map(goal => goal.current/goal.target)))?.current / appData.goals.find(g => (g.current/g.target) === Math.max(...appData.goals.map(goal => goal.current/goal.target)))?.target) * 100)}% completion! 🎯`,
+                
+                fraud: `AI Fraud Detection Status: ✅ Active and monitoring. Blocked 4 suspicious transactions this month including fake lottery messages and phishing attempts. Your account security score: 98/100. All transactions are verified on blockchain for tamper-proof records.`,
+                
+                blockchain: `⛓️ Blockchain Status: All ${appData.transactions.length} transactions are verified and secured. Latest block hash: ${generateBlockchainHash('latest_block')}. Data integrity: 100%. Smart contracts active for automatic categorization and fraud detection.`,
+                
+                karma: `You have ${appData.user.karmaTokens} karma tokens! 🎯 Recent earnings: Smart saving (+50), Goal progress (+100), Fraud prevention (+25), AI categorization (+${appData.transactions.length * 5}). Redeem for: Amazon vouchers, Zomato discounts, or charity donations.`,
+                
+                analysis: `📊 AI Financial Analysis:
+                • Monthly Income Efficiency: ${Math.round((appData.user.balance/appData.user.totalIncome)*100)}%
+                • Spending Pattern: Consistent with healthy financial habits
+                • Top Category: Food & Dining (35% of expenses)  
+                • Savings Rate: ${Math.round((appData.user.balance/appData.user.totalIncome)*100)}% (Excellent!)
+                • Risk Score: Low (2/10)
+                • AI Confidence: 94%
+                • Blockchain Verification: 100% verified`,
+                
+                smart: `🧠 ML Insights: 
+                • Transaction categorization accuracy: 96%
+                • Fraud detection sensitivity: 98%
+                • Spending pattern learning: Advanced
+                • Anomaly detection: 5 irregular transactions flagged this month
+                • Goal optimization: Suggesting ₹3,200/month reallocation for faster goal achievement
+                • Predictive savings: You'll likely save 23% more next month based on current trends`,
+                
+                default: `I'm your AI finance assistant powered by Machine Learning and Blockchain! 🤖⛓️
+
+                I can help with:
+                💰 Smart expense analysis & categorization  
+                🎯 Goal optimization strategies
+                🚨 Real-time fraud detection
+                📊 Spending insights & predictions
+                ⛓️ Blockchain transaction verification
+                🏆 Karma rewards management
+                
+                Try asking: "analyze my spending", "check my goals", "fraud status", or "blockchain verification"`
+            };
+            
+            for (const [key, response] of Object.entries(responses)) {
+                if (msg.includes(key)) {
+                    return response;
+                }
+            }
+            
+            return responses.default;
+        }
+        
+        // AI Demo Features
+        function startAIDemo() {
+            // Fraud detection demo
+            setTimeout(() => {
+                showAIAlert('danger', '🚨 Fraud Blocked', 'Suspicious SMS detected: "Congratulations! You won ₹1,00,000..." - AI automatically blocked potential scam and awarded you 25 karma tokens!');
+                appData.user.karmaTokens += 25;
+            }, 8000);
+            
+            // Smart savings suggestion
+            setTimeout(() => {
+                showAIAlert('info', '🧠 AI Insight', 'Spending pattern detected: You spend ₹450 on coffee weekly. Brewing at home 3 days/week could save ₹1,200/month towards your vacation goal!');
+            }, 15000);
+            
+            // Goal progress notification
+            setTimeout(() => {
+                const randomGoal = appData.goals[Math.floor(Math.random() * appData.goals.length)];
+                randomGoal.current += 2500;
+                showAIAlert('success', '🎯 Goal Progress', `Great news! ${randomGoal.name} updated: +₹2,500 added. You're now ${Math.round((randomGoal.current/randomGoal.target)*100)}% closer to your target!`);
+            }, 22000);
+            
+            // Blockchain verification
+            setTimeout(() => {
+                showAIAlert('info', '⛓️ Blockchain Update', `Monthly financial statement hash generated and verified on blockchain: ${generateBlockchainHash('monthly_statement')}. Your financial data is now tamper-proof!`);
+            }, 30000);
+            
+            // Karma milestone
+            setTimeout(() => {
+                appData.user.karmaTokens += 150;
+                showAIAlert('success', '🏆 Achievement Unlocked', 'Smart Spender badge earned! +150 karma tokens. You can now redeem ₹500 Amazon voucher or donate to charity. Keep up the great financial habits!');
+            }, 38000);
+            
+            // ML learning update
+            setTimeout(() => {
+                showAIAlert('info', '🤖 AI Learning Update', `Machine Learning model updated! Categorization accuracy improved to 97.2% based on your transaction patterns. Fraud detection enhanced with your spending profile.`);
+            }, 45000);
+        }
+        
+        // Real-time transaction simulation
+        function simulateRealTimeTransactions() {
+            const sampleTransactions = [
+                {title: 'Coffee at Starbucks', amount: 350, category: 'food', type: 'expense'},
+                {title: 'Metro Card Recharge', amount: 200, category: 'transport', type: 'expense'},
+                {title: 'Freelance Payment', amount: 5000, category: 'income', type: 'income'},
+                {title: 'Netflix Subscription', amount: 649, category: 'entertainment', type: 'expense'},
+                {title: 'Medical Checkup', amount: 800, category: 'health', type: 'expense'}
+            ];
+            
+            setInterval(() => {
+                if (Math.random() > 0.8) { // 20% chance
+                    const sample = sampleTransactions[Math.floor(Math.random() * sampleTransactions.length)];
+                    
+                    const transaction = {
+                        id: Date.now(),
+                        title: sample.title,
+                        amount: sample.type === 'expense' ? -sample.amount : sample.amount,
+                        category: sample.category,
+                        date: new Date().toISOString().split('T')[0],
+                        type: sample.type,
+                        hash: verifyTransaction(sample)
+                    };
+                    
+                    appData.transactions.unshift(transaction);
+                    
+                    if (sample.type === 'expense') {
+                        appData.user.totalExpenses += sample.amount;
+                        appData.user.balance -= sample.amount;
+                    } else {
+                        appData.user.totalIncome += sample.amount;
+                        appData.user.balance += sample.amount;
+                    }
+                    
+                    appData.user.karmaTokens += Math.floor(sample.amount / 100);
+                    
+                    updateDashboard();
+                    
+                    if (appData.currentScreen === 'dashboard') {
+                        showAIAlert('info', '💳 Transaction Detected', `Auto-detected: ${sample.title} - ₹${sample.amount}. AI categorized as ${sample.category} and verified on blockchain.`);
+                    }
+                }
+            }, 30000); // Check every 30 seconds
+        }
+        
+        // Initialize app with API integration
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Set current date for entry
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entryDate').value = today;
+            
+            // Check if user is already authenticated
+            const isAuthenticated = await checkAuthStatus();
+            
+            if (!isAuthenticated) {
+                // Show welcome message for new users
+                setTimeout(() => {
+                    if (appData.currentScreen === 'onboarding') {
+                        showAIAlert('success', 'Welcome to BUDGLE! 🎉', 'Your AI + Blockchain finance assistant is ready. Create an account to unlock smart features and connect to real backend API!');
+                    }
+                }, 2000);
+            }
+            
+            // Add click listeners to nav items
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                const labels = ['Home', 'Add', 'Analysis', 'Alerts', 'Goals'];
+                item.addEventListener('click', () => switchTab(labels[index]));
+            });
+            
+            // Start real-time features after authentication
+            if (isAuthenticated) {
+                setTimeout(() => {
+                    startAIDemo();
+                    simulateRealTimeTransactions();
+                }, 3000);
+            }
+        });
+        
+        // Click outside chat to close
+        document.addEventListener('click', function(e) {
+            const chatWindow = document.getElementById('chatWindow');
+            const chatbot = document.querySelector('.chatbot');
+            
+            if (chatWindow.style.display === 'flex' && 
+                !chatWindow.contains(e.target) && 
+                !chatbot.contains(e.target)) {
+                chatWindow.style.display = 'none';
+            }
+        });
+        
+        // Demo data population for immediate testing
+        function populateDemoData() {
+            // This runs when user reaches dashboard
+            updateDashboard();
+            
+            // Show AI welcome message for dashboard
+            setTimeout(() => {
+                if (appData.currentScreen === 'dashboard') {
+                    addChatMessage('Welcome to BUDGLE dashboard! 🏠 Your AI assistant has analyzed your finances. You have a healthy savings rate of 59%! Ask me anything about your spending patterns, goals, or financial insights.', 'bot');
+                }
+            }, 1000);
+        }
+        
+        // Logout Function
+        function logout() {
+            // Show confirmation dialog
+            const confirmed = confirm('Are you sure you want to logout? All your session data will be cleared.');
+            
+            if (confirmed) {
+                // Clear session data (reset to defaults but keep demo structure)
+                appData.user = {
+                    name: 'Jane Doe',
+                    email: 'jane@example.com', 
+                    mobile: '+91 98765 43210',
+                    balance: 26500,
+                    totalIncome: 45000,
+                    totalExpenses: 18500,
+                    karmaTokens: 1250
+                };
+                
+                // Clear form inputs
+                document.getElementById('fullName').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('mobile').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                // Clear chat
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="message bot">
+                        Hi! I'm your AI-powered finance assistant with ML categorization and blockchain security. I can help with:
+                        
+                        🧠 Smart expense categorization
+                        ⛓️ Blockchain transaction verification  
+                        🚨 Fraud detection & alerts
+                        🎯 Goal optimization strategies
+                        💰 Karma rewards management
+                        
+                        What would you like to explore?
+                    </div>
+                `;
+                
+                // Hide chat window if open
+                document.getElementById('chatWindow').style.display = 'none';
+                
+                // Show logout success message
+                showAIAlert('success', 'Logged Out Successfully', 'You have been safely logged out. Your data is secured on blockchain. Thanks for using BUDGLE!');
+                
+                // Return to onboarding after short delay
+                setTimeout(() => {
+                    showScreen('onboarding');
+                    
+                    // Reset navigation
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    document.querySelectorAll('.nav-item')[0].classList.add('active');
+                    
+                }, 2000);
+            }
+        }
+        
+        // Screen transition with demo data
+        const originalShowScreen = showScreen;
+        showScreen = function(screenId) {
+            originalShowScreen(screenId);
+            
+            if (screenId === 'dashboard') {
+                populateDemoData();
+            }
+        };
+    </script>
+</body>
+</html>
+        
