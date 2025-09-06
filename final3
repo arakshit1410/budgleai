@@ -2186,7 +2186,7 @@
 
             
             // Update pie charts with actual data
-            updatePieCharts();
+            updatePieCharts();}
             
             // Update transactions list
             const transactionsList = document.getElementById('transactionsList');
