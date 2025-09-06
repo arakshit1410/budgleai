@@ -2182,11 +2182,10 @@
             document.querySelector('.expense-amount.expense').textContent = `₹${appData.user.totalExpenses.toLocaleString()}`;
             document.querySelector('.expense-amount.income').textContent = `₹${appData.user.totalIncome.toLocaleString()}`;
             document.querySelector('.savings-amount').textContent = `₹${appData.user.balance.toLocaleString()}`;
-            document.querySelector('.expense-amount.karma').textContent = 💎 ${appData.user.karmaTokens.toLocaleString()};
 
             
             // Update pie charts with actual data
-            updatePieCharts();}
+            updatePieCharts();
             
             // Update transactions list
             const transactionsList = document.getElementById('transactionsList');
